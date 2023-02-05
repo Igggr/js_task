@@ -40,6 +40,9 @@ describe("round", () => {
     ];
 
     for (const pair of pairs) {
-        it(pair.input.toString(), () => expect(roundTo5(pair.input)).toBe(pair.expected))
+        it(pair.input.toString(), () => {
+            const rounded = roundTo5(pair.input)
+            expect(rounded).toBe(pair.expected);
+        })
     }
 })
