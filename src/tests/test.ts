@@ -1,5 +1,6 @@
 import { isPrime } from "../prime"
 import { roundTo5 } from "../round"
+import { twoTimesInBoth } from "../two_times_in_both"
 
 type Pair<T, V> = {input: T, expected: V}
 
@@ -45,4 +46,17 @@ describe("round", () => {
             expect(rounded).toBe(pair.expected);
         })
     }
+})
+
+
+describe("two times in both", () => {
+    const arr1 = [7, 17, 1, 9, 1, 17, 56, 56, 23]
+    const arr2 = [56, 17, 17, 1, 23, 34, 23, 1, 8, 1];
+    const expected = [1, 17]
+    expect(twoTimesInBoth(arr1, arr2)).toEqual(expected)
+
+    const arr3 = [7, 17, 1, 2, 2, 9, 1, 17, 56, 56, 23]
+    const arr4 = [56, 17, 17, 1, 23, 2, 34, 2, 23, 1, 8, 1];
+    const expected1 = [1, 2, 17]
+    expect(twoTimesInBoth(arr3, arr4)).toEqual(expected1)
 })
