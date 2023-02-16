@@ -12,64 +12,61 @@ export class Product {
     }
 }
 
+
 export function filterProducts(products: Product[], queries: string): Product[] {
     const conditions = queries
         .split('&')
         .map((query) => Condition.create(query));
-
-    console.log(conditions);
 
     return products.filter((product) => {
         return conditions.every((condition) => condition.check(product));
     });
 }
 
-type Comparison<T> = (t1: T, t2: T) => boolean
+
+type CompareFunction<T> = (t1: T, t2: T) => boolean
+
 
 // type NumberComparison = '<' | '=' | '>' | '<=' | '>=';
 // type string = 'contains' | 'starts' | 'ends';
 
+
 class Condition<V extends string | number> {
     private readonly property: string;
-    private readonly comparison: Comparison<V>;
+    private readonly comparison: CompareFunction<V>;
     private readonly value: V;
 
-    private constructor(property: string, comparison: Comparison<V>, value: V) {
+    private constructor(property: string, comparison: CompareFunction<V>, value: V) {
         this.property = property;
         this.comparison = comparison;
         this.value = value;
     }
 
-    check(product: Product): boolean {
+    public check(product: Product): boolean {
         const property = this.property;
         if (property in product) {
-            const productValue: Product[keyof Product] = (product as any)[property] as Product[keyof Product];
-            return this.comparison(this.value, productValue as V)
+            const productValue = product[property as keyof Product] as V;
+            return this.comparison(productValue, this.value)
         }
         return false;
     }
 
     public static create(query: string): Condition<number> | Condition<string> {
-        let [property, ...how] = query.split('-')
-        property = property ?? ''
+        let [property, ...how] = query.split('-').filter((s) => s !== '')
+        property = property ?? '';
 
         if (how.length === 2) { // string comparison
             const [comparisonSymbol, value] = how;
-   
-           new Condition<string>(property, Condition.stringComparison(comparisonSymbol ?? ''), value ?? '')
-
+           return new Condition<string>(property, Condition.forStrings(comparisonSymbol ?? ''), value ?? '')
         } else if (how.length === 1) {  // number comparison
-            const { comparison, value } = Condition.comp(how[0] ?? '')
-        
-            new Condition<number>(property, comparison, value)
-
+            const { comparison, value } = Condition.forNumbers(how[0] ?? '')        
+            return new Condition<number>(property, comparison, value)
         }
         // incorrect string
         return new Condition<any>('', () => false, '')
     }
 
-
-    private static stringComparison(comparison: string): Comparison<string> {
+    private static forStrings(comparison: string): CompareFunction<string> {
         return function(value: string, substring: string) {
             switch(comparison) {
                 case 'contains':
@@ -84,7 +81,7 @@ class Condition<V extends string | number> {
         }
     }
 
-    private static comp(how: string): { comparison: Comparison<number>, value: number } {
+    private static forNumbers(how: string): { comparison: CompareFunction<number>, value: number } {
         if (how.startsWith('>=')) {
             return {
                 value: +how.slice(2),
@@ -120,6 +117,5 @@ class Condition<V extends string | number> {
             value: NaN,
             comparison: () => false,
         }
-        
     }
 }
