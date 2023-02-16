@@ -1,3 +1,4 @@
+//@ts-ignore
 function printMultiplicationTable(x: number): void {
     const table = createMultiplicationTable(x);
     const padedTable = padTable(table);
@@ -30,5 +31,5 @@ function padTable(table: string[][]): string[][] {
 
 
 // printMultiplicationTable(3)
-printMultiplicationTable(5)
+// printMultiplicationTable(5)
 // printMultiplicationTable(20)
